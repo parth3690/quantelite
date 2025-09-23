@@ -1,3 +1,19 @@
+"""
+QuantElite - Elite Quantitative Trading Platform
+================================================
+
+A world-class web application that combines Technical Analysis and Quantitative Trading Strategies
+for professional stock market analysis. Built with enterprise-grade Flask architecture, Python, 
+and cutting-edge web technologies.
+
+Features:
+- Interactive stock charts with Plotly.js
+- Advanced technical indicators (Moving Averages, RSI, MACD)
+- Elite quantitative trading strategies
+- Real-time market data via yfinance
+- Professional-grade analysis tools with enterprise monitoring
+"""
+
 from flask import Flask, render_template, request, jsonify
 import yfinance as yf
 import numpy as np

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Elite Stock Analysis Platform Launcher
-======================================
+QuantElite - Elite Quantitative Trading Platform Launcher
+=========================================================
 
 This elite launcher demonstrates world-class engineering principles:
 
@@ -417,7 +417,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(
-        description='Elite Stock Analysis Platform Launcher',
+        description='QuantElite - Elite Quantitative Trading Platform Launcher',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -451,7 +451,7 @@ Examples:
         )
         
         with elite_application_context(config) as launcher:
-            print(f"🚀 Elite Stock Analysis Platform running on http://{config.host}:{args.port}")
+            print(f"🚀 QuantElite - Elite Quantitative Trading Platform running on http://{config.host}:{args.port}")
             print("Press Ctrl+C to stop")
             
             # Keep running until interrupted

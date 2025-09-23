@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for Stock Analysis Platform
+Setup script for QuantElite - Elite Quantitative Trading Platform
 """
 
 from setuptools import setup, find_packages
@@ -12,14 +12,14 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(
-    name="stock-analysis-platform",
+    name="quantelite",
     version="1.0.0",
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="Advanced Stock Analysis Platform with Technical Analysis and Quantitative Trading Strategies",
+    author="PArth Panchal",
+    author_email="parthpanchal@Mac.lan",
+    description="QuantElite - Elite Quantitative Trading Platform with Advanced Technical Analysis and Quantitative Trading Strategies",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/stock-analysis-app",
+    url="https://github.com/parthpanchal/quantelite",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -36,7 +36,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "stock-analysis=app:main",
+            "quantelite=app:main",
         ],
     },
     include_package_data=True,
