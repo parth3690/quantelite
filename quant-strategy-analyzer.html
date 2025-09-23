@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quant Strategy Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #00f2fe, #4facfe, #00f2fe);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .subtitle {
+            color: #8b92b9;
+            font-size: 1.1em;
+        }
+
+        .search-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 1s ease;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stock-info {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stock-title {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stock-price {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .price-change {
+            font-size: 1.2em;
+            padding: 5px 15px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .positive { 
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .negative { 
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .strategy-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .strategy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(79, 172, 254, 0.2);
+        }
+
+        .strategy-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #4facfe;
+        }
+
+        .signal-indicator {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 10px 0;
+            animation: pulse 2s infinite;
+        }
+
+        .signal-buy {
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .signal-sell {
+            background: linear-gradient(45deg, #f44336, #ef5350);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .signal-neutral {
+            background: linear-gradient(45deg, #ff9800, #ffa726);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #8b92b9;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-top: 15px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .mini-chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .strategies-grid {
+                grid-template-columns: 1fr;
+            }
+            .stock-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Quantum Strategy Analyzer</h1>
+            <p class="subtitle">Advanced Quantitative Trading Signal Analysis</p>
+        </div>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="tickerInput" placeholder="Enter Stock Ticker (e.g., AAPL, MSFT, GOOGL)" />
+                <button onclick="analyzeStock()">Analyze</button>
+            </div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px;">Analyzing strategies...</p>
+            </div>
+            <div class="error-message" id="error"></div>
+        </div>
+
+        <div class="stock-info" id="stockInfo">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-title" id="stockName">-</div>
+                    <div style="color: #8b92b9; margin-top: 5px;" id="stockSymbol">-</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="stock-price" id="stockPrice">-</div>
+                    <div class="price-change" id="priceChange">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="strategies-grid" id="strategiesGrid"></div>
+    </div>
+
+    <script>
+        // Configuration
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        
+        // Note: Strategy analysis is now handled by the Flask backend
+        // This file now serves as a standalone interface to the Flask API
+
+        // Fetch stock data from Flask backend
+        async function fetchStockData(ticker) {
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ticker: ticker })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+                // Transform Flask response to expected format
+                return {
+                    symbol: data.stockInfo.symbol,
+                    name: data.stockInfo.name,
+                    currentPrice: data.stockInfo.price,
+                    previousClose: data.stockInfo.price - data.stockInfo.change,
+                    prices: data.chartData.prices,
+                    volumes: [] // Volume data not needed for client-side strategies
+                };
+            } catch (error) {
+                throw new Error('Failed to fetch stock data: ' + error.message);
+            }
+        }
+
+        // Main analysis function
+        async function analyzeStock() {
+            const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
+            
+            if (!ticker) {
+                showError('Please enter a stock ticker');
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const stockInfo = document.getElementById('stockInfo');
+            const strategiesGrid = document.getElementById('strategiesGrid');
+            
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            stockInfo.style.display = 'none';
+            strategiesGrid.innerHTML = '';
+            
+            try {
+                // Fetch data from Flask backend
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ticker: ticker })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+                // Update stock info
+                document.getElementById('stockName').textContent = data.stockInfo.name;
+                document.getElementById('stockSymbol').textContent = data.stockInfo.symbol;
+                document.getElementById('stockPrice').textContent = '$' + data.stockInfo.price.toFixed(2);
+                
+                const change = data.stockInfo.change;
+                const changePercent = data.stockInfo.changePercent;
+                const changeElement = document.getElementById('priceChange');
+                changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${changePercent.toFixed(2)}%)`;
+                changeElement.className = 'price-change ' + (change >= 0 ? 'positive' : 'negative');
+                
+                stockInfo.style.display = 'block';
+                
+                // Display results from Flask backend
+                data.strategies.forEach((strategy, index) => {
+                    const card = createStrategyCard(strategy, index);
+                    strategiesGrid.appendChild(card);
+                });
+                
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function createStrategyCard(strategy, index) {
+            const card = document.createElement('div');
+            card.className = 'strategy-card';
+            card.style.animationDelay = (index * 0.1) + 's';
+            
+            const signalClass = strategy.signal === 'BUY' ? 'signal-buy' : 
+                               strategy.signal === 'SELL' ? 'signal-sell' : 'signal-neutral';
+            
+            let metricsHtml = '';
+            for (const [key, value] of Object.entries(strategy.metrics)) {
+                metricsHtml += `
+                    <div class="metric">
+                        <span class="metric-label">${key}</span>
+                        <span class="metric-value">${value}</span>
+                    </div>
+                `;
+            }
+            
+            card.innerHTML = `
+                <div class="strategy-title">${strategy.name}</div>
+                <p style="color: #8b92b9; margin-bottom: 15px; font-size: 0.9em;">
+                    ${strategy.description}
+                </p>
+                <div class="${signalClass} signal-indicator">
+                    ${strategy.signal} Signal
+                </div>
+                <div style="margin: 10px 0; color: #8b92b9;">
+                    Confidence: <span style="color: #fff; font-weight: bold;">
+                        ${strategy.confidence.toFixed(0)}%
+                    </span>
+                </div>
+                <div style="margin-top: 20px;">
+                    ${metricsHtml}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+        }
+
+        // Allow Enter key to trigger analysis
+        document.getElementById('tickerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeStock();
+            }
+        });
+
+        // Initial focus
+        window.onload = function() {
+            document.getElementById('tickerInput').focus();
+        };
+    </script>
+</body>
+</html>
