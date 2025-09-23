@@ -783,6 +783,56 @@ def quant_analyzer():
     """Serve the standalone quantitative strategy analyzer"""
     return app.send_static_file('quant-strategy-analyzer.html')
 
+@app.route('/unified')
+def unified():
+    """Serve the unified interface"""
+    return render_template('unified.html')
+
+@app.route('/analyze_technical', methods=['POST'])
+def analyze_technical():
+    """Analyze stock with technical indicators only"""
+    try:
+        data = request.get_json()
+        ticker = data.get('ticker', '').upper().strip()
+        if not ticker:
+            return jsonify({'error': 'Please enter a valid ticker symbol'}), 400
+        
+        # Fetch stock data
+        stock_data, stock_info = fetch_stock_data(ticker, period="3mo")
+        stock_info_dict = stock_info.info if hasattr(stock_info, 'info') else {}
+        
+        # Calculate technical indicators
+        current_price = stock_data['Close'].iloc[-1]
+        
+        # RSI
+        rsi = stock_data['RSI'].iloc[-1] if 'RSI' in stock_data.columns else None
+        
+        # Moving averages
+        ma50 = stock_data['50-DMA'].tolist() if '50-DMA' in stock_data.columns else []
+        ma200 = stock_data['200-DMA'].tolist() if '200-DMA' in stock_data.columns else []
+        
+        # P/E Ratio
+        pe_ratio = stock_info_dict.get('trailingPE', stock_info_dict.get('forwardPE', None))
+        
+        results = {
+            'ticker': ticker,
+            'dates': stock_data.index.strftime('%Y-%m-%d').tolist(),
+            'prices': stock_data['Close'].round(2).tolist(),
+            'rsi': rsi,
+            'ma50': ma50,
+            'ma200': ma200,
+            'pe_ratio': pe_ratio,
+            'current_price': round(current_price, 2)
+        }
+        
+        return jsonify(results)
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in technical analysis: {e}")
+        return jsonify({'error': f"Error analyzing {ticker}: {str(e)}"}), 500
+
 @app.route('/test-ticker/<ticker>')
 def test_ticker(ticker):
     """Test endpoint to check if a ticker is valid"""
