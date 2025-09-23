@@ -762,6 +762,11 @@ def test():
     """Test route to verify server is running"""
     return jsonify({'status': 'Server is running', 'timestamp': datetime.now().isoformat()})
 
+@app.route('/quant-analyzer')
+def quant_analyzer():
+    """Serve the standalone quantitative strategy analyzer"""
+    return app.send_static_file('quant-strategy-analyzer.html')
+
 @app.route('/test-ticker/<ticker>')
 def test_ticker(ticker):
     """Test endpoint to check if a ticker is valid"""
