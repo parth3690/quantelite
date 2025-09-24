@@ -703,12 +703,13 @@ def analyze():
     try:
         data = request.get_json()
         ticker = data.get('ticker', '').upper().strip()
+        period = data.get('period', '3mo')  # Default to 3 months if not specified
         
         if not ticker:
             return jsonify({'error': 'Please enter a valid ticker symbol'}), 400
         
-        # Fetch stock data
-        stock_data, stock_info = fetch_stock_data(ticker, period="3mo")
+        # Fetch stock data with specified period
+        stock_data, stock_info = fetch_stock_data(ticker, period=period)
         
         # Initialize strategy analyzer
         stock_info_dict = stock_info.info if hasattr(stock_info, 'info') else {}
@@ -794,11 +795,13 @@ def analyze_technical():
     try:
         data = request.get_json()
         ticker = data.get('ticker', '').upper().strip()
+        period = data.get('period', '3mo')  # Default to 3 months if not specified
+        
         if not ticker:
             return jsonify({'error': 'Please enter a valid ticker symbol'}), 400
         
-        # Fetch stock data
-        stock_data, stock_info = fetch_stock_data(ticker, period="3mo")
+        # Fetch stock data with specified period
+        stock_data, stock_info = fetch_stock_data(ticker, period=period)
         stock_info_dict = stock_info.info if hasattr(stock_info, 'info') else {}
         
         # Calculate technical indicators

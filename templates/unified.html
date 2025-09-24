@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2a2a2a 100%);
             color: #ffffff;
             min-height: 100vh;
             line-height: 1.6;
@@ -39,7 +39,7 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #00d4ff, #0099cc, #0066aa);
+            background: linear-gradient(45deg, #ff8c00, #ff6600, #ff4400);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -68,7 +68,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #00d4ff;
+            color: #ff8c00;
         }
 
         .form-group input {
@@ -84,18 +84,40 @@
 
         .form-group input:focus {
             outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            border-color: #ff8c00;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
         }
 
         .form-group input::placeholder {
             color: #888;
         }
 
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .form-control option {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
         .analyze-btn {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            background: linear-gradient(45deg, #ff8c00, #ff6600);
             border: none;
             border-radius: 10px;
             color: white;
@@ -109,7 +131,7 @@
 
         .analyze-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
         }
 
         .analyze-btn:active {
@@ -134,10 +156,10 @@
         .section-title {
             font-size: 1.5rem;
             margin-bottom: 20px;
-            color: #00d4ff;
+            color: #ff8c00;
             text-align: center;
             padding-bottom: 10px;
-            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            border-bottom: 2px solid rgba(255, 140, 0, 0.3);
         }
 
         #chart {
@@ -170,7 +192,7 @@
         .info-value {
             font-size: 1.2rem;
             font-weight: 600;
-            color: #00d4ff;
+            color: #ff8c00;
         }
 
         .price-change {
@@ -252,14 +274,14 @@
 
         .confidence-fill {
             height: 100%;
-            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            background: linear-gradient(45deg, #ff8c00, #ff6600);
             transition: width 0.5s ease;
         }
 
         .confidence-text {
             text-align: center;
             font-size: 0.9rem;
-            color: #00d4ff;
+            color: #ff8c00;
             font-weight: 600;
         }
 
@@ -292,7 +314,7 @@
         .loading {
             text-align: center;
             padding: 40px;
-            color: #00d4ff;
+            color: #ff8c00;
             font-size: 1.2rem;
         }
 
@@ -301,7 +323,7 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid #00d4ff;
+            border: 2px solid #ff8c00;
             border-radius: 50%;
             border-top-color: transparent;
             animation: spin 1s linear infinite;
@@ -368,13 +390,17 @@
         .indicator-value {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #00d4ff;
+            color: #ff8c00;
             margin-bottom: 5px;
         }
 
         .indicator-label {
             font-size: 0.9rem;
             color: #a0a0a0;
+        }
+
+        .technical-indicators h3 {
+            color: #ff8c00;
         }
     </style>
 </head>
@@ -390,6 +416,18 @@
                 <div class="form-group">
                     <label for="tickerInput">Stock Ticker Symbol</label>
                     <input type="text" id="tickerInput" placeholder="e.g., AAPL, MSFT, GOOGL, TSLA, AMZN" required>
+                </div>
+                <div class="form-group">
+                    <label for="dateRange">Analysis Period</label>
+                    <select id="dateRange" class="form-control">
+                        <option value="1mo">1 Month (30 days)</option>
+                        <option value="3mo" selected>3 Months (90 days)</option>
+                        <option value="6mo">6 Months (180 days)</option>
+                        <option value="1y">1 Year (365 days)</option>
+                        <option value="2y">2 Years (730 days)</option>
+                        <option value="5y">5 Years (1825 days)</option>
+                        <option value="max">Maximum Available</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <button type="button" class="analyze-btn" onclick="analyzeStock()">
@@ -441,6 +479,7 @@
     <script>
         async function analyzeStock() {
             const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
+            const dateRange = document.getElementById('dateRange').value;
             
             if (!ticker) {
                 showError('Please enter a valid ticker symbol');
@@ -452,17 +491,17 @@
             hideResults();
 
             try {
-                // Fetch both technical and quantitative data simultaneously
+                // Fetch both technical and quantitative data simultaneously with date range
                 const [technicalResponse, quantitativeResponse] = await Promise.all([
                     fetch('/analyze_technical', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ticker: ticker })
+                        body: JSON.stringify({ ticker: ticker, period: dateRange })
                     }),
                     fetch('/analyze', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ticker: ticker })
+                        body: JSON.stringify({ ticker: ticker, period: dateRange })
                     })
                 ]);
 
@@ -579,7 +618,7 @@
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Stock Price',
-                line: { color: '#00d4ff', width: 3 }
+                line: { color: '#ff8c00', width: 3 }
             }];
 
             // Add moving averages if available
@@ -590,7 +629,7 @@
                     type: 'scatter',
                     mode: 'lines',
                     name: '50-Day MA',
-                    line: { color: '#ffaa00', width: 2 }
+                    line: { color: '#ffffff', width: 2 }
                 });
             }
 
@@ -601,7 +640,7 @@
                     type: 'scatter',
                     mode: 'lines',
                     name: '200-Day MA',
-                    line: { color: '#ff4444', width: 2 }
+                    line: { color: '#ff6600', width: 2 }
                 });
             }
 
@@ -636,7 +675,7 @@
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Stock Price',
-                line: { color: '#00d4ff', width: 3 }
+                line: { color: '#ff8c00', width: 3 }
             }];
 
             const layout = {
